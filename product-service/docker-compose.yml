@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3002:3002"
-    command: ["bun", "product-service/app.js"]
+    command: ["bun", "product-service/app.ts"]
     networks:
       - microservice-network
 

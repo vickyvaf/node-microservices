@@ -1,6 +1,24 @@
-const { default: consola } = require("consola");
-const express = require("express");
-const promBundle = require("express-prom-bundle");
+import consola from "consola";
+import express, { type Request, type Response } from "express";
+import promBundle from "express-prom-bundle";
+
+interface Order {
+  id: number;
+  userId: number;
+  productIds: number[];
+  total: number;
+}
+
+interface EnrichedOrder extends Order {
+  products?: unknown[];
+}
+
+interface CreateOrderBody {
+  userId: number;
+  productIds: number[];
+  total: number;
+}
+
 const app = express();
 const port = 3003;
 
@@ -15,11 +33,12 @@ const metricsMiddleware = promBundle({
 });
 
 app.use(metricsMiddleware);
-const orders = [{ id: 1, userId: 1, productIds: [1, 2], total: 1500 }];
 
-app.post("/orders", (req, res) => {
+const orders: Order[] = [{ id: 1, userId: 1, productIds: [1, 2], total: 1500 }];
+
+app.post("/orders", (req: Request<{}, {}, CreateOrderBody>, res: Response) => {
   const { userId, productIds, total } = req.body;
-  const newOrder = {
+  const newOrder: Order = {
     id: orders.length + 1,
     userId,
     productIds,
@@ -29,15 +48,14 @@ app.post("/orders", (req, res) => {
   res.status(201).json(newOrder);
 });
 
-app.get("/orders", async (req, res) => {
-  const userId = req.query.userId ? parseInt(req.query.userId) : null;
-  let filteredOrders = userId
+app.get("/orders", async (req: Request, res: Response) => {
+  const userId = req.query.userId ? parseInt(req.query.userId as string) : null;
+  const filteredOrders = userId
     ? orders.filter((o) => o.userId === userId)
     : orders;
 
-  // Enrich orders with product details from Product Service
-  const enrichedOrders = await Promise.all(
-    filteredOrders.map(async (order) => {
+  const enrichedOrders: EnrichedOrder[] = await Promise.all(
+    filteredOrders.map(async (order): Promise<EnrichedOrder> => {
       consola.info("Filtered orders", order);
       try {
         const PRODUCT_SERVICE_URL =

@@ -7,7 +7,7 @@ services:
       - "3001:3001"
     environment:
       - ORDER_SERVICE_URL=http://order-service:3003
-    command: ["bun", "user-service/app.js"]
+    command: ["bun", "user-service/app.ts"]
     networks:
       - microservice-network
 
