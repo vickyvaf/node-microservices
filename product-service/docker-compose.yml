@@ -1,0 +1,15 @@
+services:
+  product-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    command: ["bun", "product-service/app.js"]
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    external: true
+    name: microservice-network

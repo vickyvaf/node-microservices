@@ -1,0 +1,17 @@
+services:
+  order-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+    command: ["bun", "order-service/app.js"]
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    external: true
+    name: microservice-network
