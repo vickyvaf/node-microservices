@@ -78,6 +78,10 @@ Once the services are running via Docker Compose (`bun run docker:all`), you can
   - Password: `admin`
 - **Data Sources**: Prometheus and Loki are pre-provisioned. You can immediately go to the **Explore** tab to query metrics or logs.
 
+### Portainer (Docker Management)
+- **URL**: [http://localhost:9000](http://localhost:9000)
+- **Setup**: Create your admin account upon first access to manage all running containers.
+
 ### Prometheus UI
 - **URL**: [http://localhost:9090](http://localhost:9090)
 - To verify that microservices are being correctly scraped, navigate to **Status > Targets** in the Prometheus UI.
