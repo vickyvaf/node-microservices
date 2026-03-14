@@ -1,4 +1,39 @@
 services:
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - ORDER_SERVICE_URL=http://order-service:3003
+    networks:
+      - microservice-network
+    depends_on:
+      - order-service
+
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - microservice-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+    networks:
+      - microservice-network
+    depends_on:
+      - product-service
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -16,7 +51,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./prometheus/:/etc/prometheus/
+      - ./monitoring/prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -44,7 +79,7 @@ services:
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
     networks:
       - microservice-network
@@ -58,7 +93,7 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -71,7 +106,6 @@ services:
 
 networks:
   microservice-network:
-    external: true
     name: microservice-network
 
 volumes:
